@@ -2,6 +2,8 @@ import { Hono } from "hono";
 
 import { dataFigureskaters } from "./data/figureskaters";
 
+let figureskaters = dataFigureskaters;
+
 const app = new Hono();
 
 app.get("/", (c) => {
@@ -27,6 +29,27 @@ app.get("/figureskaters/:id", (c) => {
   }
 
   return c.json(figureskater);
+});
+
+app.post("/figureskaters", async (c) => {
+  const body = await c.req.json();
+
+  const nextId = dataFigureskaters[dataFigureskaters.length - 1].id + 1;
+
+  const newFigureskater = {
+    id: nextId,
+    name: body.name,
+    sex: body.sex,
+    country: body.country,
+  };
+
+  const newDataFigureskaters = [...dataFigureskaters, newFigureskater];
+
+  figureskaters = newDataFigureskaters;
+
+  console.log(figureskaters);
+
+  return c.json({ figureskater: null });
 });
 
 export default app;

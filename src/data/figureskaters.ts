@@ -1,12 +1,12 @@
-type Figureskater = {
+type figureskater = {
   id: number;
   name: string;
-  sex: string;
-  country: string;
+  sex?: string;
+  country?: string;
   favProgram?: string;
 };
 
-export const dataFigureskaters: Figureskater[] = [
+export const dataFigureskaters: figureskater[] = [
   {
     id: 1,
     name: "Yuzuru Hanyu",
