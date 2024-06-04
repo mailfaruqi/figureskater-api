@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 
-import { dataFigureskaters } from "./data/figureskaters";
+import { dataFigureskaters, type FigureSkater } from "./data/figureskaters";
 
-let figureskaters = dataFigureskaters;
+let figureSkaters = dataFigureskaters;
 
 const app = new Hono();
 
@@ -13,13 +13,13 @@ app.get("/", (c) => {
 });
 
 app.get("/figureskaters", (c) => {
-  return c.json(figureskaters);
+  return c.json(figureSkaters);
 });
 
 app.get("/figureskaters/:id", (c) => {
   const id = Number(c.req.param("id"));
 
-  const figureskater = figureskaters.find(
+  const figureskater = figureSkaters.find(
     (figureskater) => figureskater.id == id
   );
 
@@ -34,14 +34,16 @@ app.get("/figureskaters/:id", (c) => {
 app.post("/figureskaters", async (c) => {
   const body = await c.req.json();
 
-  const nextId = figureskaters[figureskaters.length - 1].id + 1;
+  const nextId = figureSkaters[figureSkaters.length - 1].id + 1;
 
-  const newFigureskater = {
+  const newFigureskater: FigureSkater = {
     id: nextId,
     name: body.name,
+    country: body.country,
+    freePrograms: body.freePrograms,
   };
 
-  figureskaters = [...figureskaters, newFigureskater];
+  figureSkaters = [...figureSkaters, newFigureskater];
 
   return c.json({ figureskater: newFigureskater });
 });
