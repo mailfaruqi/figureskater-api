@@ -13,13 +13,13 @@ app.get("/", (c) => {
 });
 
 app.get("/figureskaters", (c) => {
-  return c.json(dataFigureskaters);
+  return c.json(figureskaters);
 });
 
 app.get("/figureskaters/:id", (c) => {
   const id = Number(c.req.param("id"));
 
-  const figureskater = dataFigureskaters.find(
+  const figureskater = figureskaters.find(
     (figureskater) => figureskater.id == id
   );
 
@@ -34,22 +34,16 @@ app.get("/figureskaters/:id", (c) => {
 app.post("/figureskaters", async (c) => {
   const body = await c.req.json();
 
-  const nextId = dataFigureskaters[dataFigureskaters.length - 1].id + 1;
+  const nextId = figureskaters[figureskaters.length - 1].id + 1;
 
   const newFigureskater = {
     id: nextId,
     name: body.name,
-    sex: body.sex,
-    country: body.country,
   };
 
-  const newDataFigureskaters = [...dataFigureskaters, newFigureskater];
+  figureskaters = [...figureskaters, newFigureskater];
 
-  figureskaters = newDataFigureskaters;
-
-  console.log(figureskaters);
-
-  return c.json({ figureskater: null });
+  return c.json({ figureskater: newFigureskater });
 });
 
 export default app;
