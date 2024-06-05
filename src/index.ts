@@ -97,9 +97,9 @@ app.put("/figureskaters/:id", async (c) => {
 
   const newFigureskater = {
     ...figureskater,
-    name: body.name,
-    country: body.country,
-    freePrograms: body.freePrograms,
+    name: body.name || figureskater.name,
+    country: body.country || figureskater.country,
+    freePrograms: body.freePrograms || figureskater.freePrograms,
   };
 
   const updatedFigureskater = figureSkaters.map((figureskater) => {
