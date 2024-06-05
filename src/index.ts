@@ -82,4 +82,40 @@ app.delete("/figureskaters/:id", (c) => {
   });
 });
 
+app.put("/figureskaters/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const body = await c.req.json();
+
+  const figureskater = figureSkaters.find(
+    (figureskater) => figureskater.id == id
+  );
+
+  if (!figureskater) {
+    c.status(404);
+    return c.json({ message: "Figure Skater not found" });
+  }
+
+  const newFigureskater = {
+    ...figureskater,
+    name: body.name,
+    country: body.country,
+    freePrograms: body.freePrograms,
+  };
+
+  const updatedFigureskater = figureSkaters.map((figureskater) => {
+    if (figureskater.id == id) {
+      return newFigureskater;
+    } else {
+      return figureskater;
+    }
+  });
+
+  figureSkaters = updatedFigureskater;
+
+  return c.json({
+    message: `Updated figure skater data with id ${id}`,
+    figureskater: newFigureskater,
+  });
+});
+
 export default app;
