@@ -59,4 +59,27 @@ app.delete("/figureskaters", (c) => {
   return c.json({ message: "All figure skaters data have been removed" });
 });
 
+app.delete("/figureskaters/:id", (c) => {
+  const id = Number(c.req.param("id"));
+
+  const figureskater = figureSkaters.find(
+    (figureskater) => figureskater.id == id
+  );
+
+  if (!figureskater) {
+    c.status(404);
+    return c.json({ message: "Figure Skater not found" });
+  }
+
+  const updatedFigureskater = figureSkaters.filter(
+    (figureskater) => figureskater.id != id
+  );
+
+  figureSkaters = updatedFigureskater;
+
+  return c.json({
+    message: `Delete figure skater data with id ${id}`,
+  });
+});
+
 export default app;
