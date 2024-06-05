@@ -31,6 +31,11 @@ app.get("/figureskaters/:id", (c) => {
   return c.json(figureskater);
 });
 
+app.post("/figureskaters/seed", async (c) => {
+  figureSkaters = dataFigureskaters;
+  return c.json({ figureSkaters });
+});
+
 app.post("/figureskaters", async (c) => {
   const body = await c.req.json();
 
@@ -46,6 +51,12 @@ app.post("/figureskaters", async (c) => {
   figureSkaters = [...figureSkaters, newFigureskater];
 
   return c.json({ figureskater: newFigureskater });
+});
+
+app.delete("/figureskaters", (c) => {
+  figureSkaters = [];
+
+  return c.json({ message: "All figure skaters data have been removed" });
 });
 
 export default app;
