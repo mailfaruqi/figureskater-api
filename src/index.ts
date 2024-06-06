@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 
-import { dataFigureskaters, type FigureSkater } from "./data/figureskaters";
+import { dataFigureskaters, type FigureSkater } from "./data/figureskaters.ts";
+import { client } from "./lib/db.ts";
 
 let figureSkaters = dataFigureskaters;
 
@@ -12,7 +13,10 @@ app.get("/", (c) => {
   });
 });
 
-app.get("/figureskaters", (c) => {
+app.get("/figureskaters", async (c) => {
+  const res = await client.query("SELECT * FROM figureSkaters");
+  const figureSkaters = res.rows as FigureSkater[];
+  await client.end();
   return c.json(figureSkaters);
 });
 
