@@ -12,6 +12,10 @@
 | `/figureskaters/:id`  | `DELETE` | Delete figure skaters by id       |
 | `/figureskaters/:id`  | `PUT`    | Update figure skaters by id       |
 
+## Database Design/Schema/ERD
+
+![ERD](./images/erd-figureskaters-api.svg)
+
 ## Getting Started
 
 To install dependencies:
