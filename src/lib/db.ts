@@ -5,3 +5,5 @@ const { Client } = pg;
 export const client = new Client({
   connectionString: process.env.DATABASE_URL,
 });
+
+// console.log(client);

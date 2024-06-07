@@ -14,10 +14,12 @@ app.get("/", (c) => {
 });
 
 app.get("/figureskaters", async (c) => {
-  const res = await client.query("SELECT * FROM figureSkaters");
-  const figureSkaters = res.rows as FigureSkater[];
-  await client.end();
-  return c.json(figureSkaters);
+  const res = await client.query("SELECT * FROM figureskaters");
+  console.log(res);
+
+  // const figureSkaters = res.rows as FigureSkater[];
+  // await client.end();
+  return c.json(null);
 });
 
 app.get("/figureskaters/:id", (c) => {
