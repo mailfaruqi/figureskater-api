@@ -1,10 +1,16 @@
 import { Hono } from "hono";
 
-import { dataFigureskaters, type FigureSkater } from "./data/figureskaters";
-
-let figureSkaters = dataFigureskaters;
+import { dataFigureskaters } from "./data/figureskaters.ts";
+import { prisma } from "./lib/db.ts";
 
 const app = new Hono();
+
+// app.post("/figureskaters/seed", async (c) => {
+//   const figureskaters = await prisma.figureSkater.createMany({
+//     data: dataFigureskaters,
+//   });
+//   return c.json(figureskaters);
+// });
 
 app.get("/", (c) => {
   return c.json({
@@ -12,16 +18,17 @@ app.get("/", (c) => {
   });
 });
 
-app.get("/figureskaters", (c) => {
-  return c.json(figureSkaters);
+app.get("/figureskaters", async (c) => {
+  const figureskaters = await prisma.figureSkater.findMany();
+  return c.json(figureskaters);
 });
 
-app.get("/figureskaters/:id", (c) => {
+app.get("/figureskaters/:id", async (c) => {
   const id = Number(c.req.param("id"));
 
-  const figureskater = figureSkaters.find(
-    (figureskater) => figureskater.id == id
-  );
+  const figureskater = await prisma.figureSkater.findUnique({
+    where: { id },
+  });
 
   if (!figureskater) {
     c.status(404);
@@ -34,18 +41,57 @@ app.get("/figureskaters/:id", (c) => {
 app.post("/figureskaters", async (c) => {
   const body = await c.req.json();
 
-  const nextId = figureSkaters[figureSkaters.length - 1].id + 1;
-
-  const newFigureskater: FigureSkater = {
-    id: nextId,
+  const figureskaterData = {
     name: body.name,
     country: body.country,
-    freePrograms: body.freePrograms,
   };
 
-  figureSkaters = [...figureSkaters, newFigureskater];
+  const figureskater = await prisma.figureSkater.create({
+    data: figureskaterData,
+  });
 
-  return c.json({ figureskater: newFigureskater });
+  return c.json({ figureskater });
 });
+
+app.delete("/figureskaters", async (c) => {
+  await prisma.figureSkater.deleteMany();
+
+  return c.json({ message: "All figure skaters data have been removed" });
+});
+
+app.delete("/figureskaters/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+
+  const deletedFigureskater = await prisma.figureSkater.delete({
+    where: { id },
+  });
+
+  return c.json({
+    message: `Delete figure skater data with id ${id}`,
+    deletedFigureskater,
+  });
+});
+
+app.put("/figureskaters/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const body = await c.req.json();
+
+  const figureskaterData = {
+    name: body.name,
+    country: body.country,
+  };
+
+  const updatedFigureSkater = await prisma.figureSkater.update({
+    where: { id },
+    data: figureskaterData,
+  });
+
+  return c.json({
+    message: `Updated figure skater data with id ${id}`,
+    updatedFigureSkater,
+  });
+});
+
+console.log("Figure Skaters API is running");
 
 export default app;
