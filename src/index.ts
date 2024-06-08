@@ -1,11 +1,16 @@
 import { Hono } from "hono";
 
-import { dataFigureskaters, type FigureSkater } from "./data/figureskaters.ts";
-import { client } from "./lib/db.ts";
-
-let figureSkaters = dataFigureskaters;
+import { dataFigureskaters } from "./data/figureskaters.ts";
+import { prisma } from "./lib/db.ts";
 
 const app = new Hono();
+
+// app.post("/figureskaters/seed", async (c) => {
+//   const figureskaters = await prisma.figureSkater.createMany({
+//     data: dataFigureskaters,
+//   });
+//   return c.json(figureskaters);
+// });
 
 app.get("/", (c) => {
   return c.json({
@@ -14,20 +19,16 @@ app.get("/", (c) => {
 });
 
 app.get("/figureskaters", async (c) => {
-  const res = await client.query("SELECT * FROM figureskaters");
-  console.log(res);
-
-  // const figureSkaters = res.rows as FigureSkater[];
-  // await client.end();
-  return c.json(null);
+  const figureskaters = await prisma.figureSkater.findMany();
+  return c.json(figureskaters);
 });
 
-app.get("/figureskaters/:id", (c) => {
+app.get("/figureskaters/:id", async (c) => {
   const id = Number(c.req.param("id"));
 
-  const figureskater = figureSkaters.find(
-    (figureskater) => figureskater.id == id
-  );
+  const figureskater = await prisma.figureSkater.findUnique({
+    where: { id },
+  });
 
   if (!figureskater) {
     c.status(404);
@@ -37,54 +38,37 @@ app.get("/figureskaters/:id", (c) => {
   return c.json(figureskater);
 });
 
-app.post("/figureskaters/seed", async (c) => {
-  figureSkaters = dataFigureskaters;
-  return c.json({ figureSkaters });
-});
-
 app.post("/figureskaters", async (c) => {
   const body = await c.req.json();
 
-  const nextId = figureSkaters[figureSkaters.length - 1].id + 1;
-
-  const newFigureskater: FigureSkater = {
-    id: nextId,
+  const figureskaterData = {
     name: body.name,
     country: body.country,
-    freePrograms: body.freePrograms,
   };
 
-  figureSkaters = [...figureSkaters, newFigureskater];
+  const figureskater = await prisma.figureSkater.create({
+    data: figureskaterData,
+  });
 
-  return c.json({ figureskater: newFigureskater });
+  return c.json({ figureskater });
 });
 
-app.delete("/figureskaters", (c) => {
-  figureSkaters = [];
+app.delete("/figureskaters", async (c) => {
+  await prisma.figureSkater.deleteMany();
 
   return c.json({ message: "All figure skaters data have been removed" });
 });
 
-app.delete("/figureskaters/:id", (c) => {
+app.delete("/figureskaters/:id", async (c) => {
   const id = Number(c.req.param("id"));
 
-  const figureskater = figureSkaters.find(
-    (figureskater) => figureskater.id == id
-  );
-
-  if (!figureskater) {
-    c.status(404);
-    return c.json({ message: "Figure Skater not found" });
-  }
-
-  const updatedFigureskater = figureSkaters.filter(
-    (figureskater) => figureskater.id != id
-  );
-
-  figureSkaters = updatedFigureskater;
+  const deletedFigureskater = await prisma.figureSkater.delete({
+    where: { id },
+  });
 
   return c.json({
     message: `Delete figure skater data with id ${id}`,
+    deletedFigureskater,
   });
 });
 
@@ -92,36 +76,22 @@ app.put("/figureskaters/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const body = await c.req.json();
 
-  const figureskater = figureSkaters.find(
-    (figureskater) => figureskater.id == id
-  );
-
-  if (!figureskater) {
-    c.status(404);
-    return c.json({ message: "Figure Skater not found" });
-  }
-
-  const newFigureskater = {
-    ...figureskater,
-    name: body.name || figureskater.name,
-    country: body.country || figureskater.country,
-    freePrograms: body.freePrograms || figureskater.freePrograms,
+  const figureskaterData = {
+    name: body.name,
+    country: body.country,
   };
 
-  const updatedFigureskater = figureSkaters.map((figureskater) => {
-    if (figureskater.id == id) {
-      return newFigureskater;
-    } else {
-      return figureskater;
-    }
+  const updatedFigureSkater = await prisma.figureSkater.update({
+    where: { id },
+    data: figureskaterData,
   });
-
-  figureSkaters = updatedFigureskater;
 
   return c.json({
     message: `Updated figure skater data with id ${id}`,
-    figureskater: newFigureskater,
+    updatedFigureSkater,
   });
 });
+
+console.log("Figure Skaters API is running");
 
 export default app;
